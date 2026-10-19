@@ -12,7 +12,7 @@ button,input{font:inherit}.top{height:74px;background:linear-gradient(90deg,#fff
 .layout{display:grid;grid-template-columns:300px minmax(420px,1fr) 320px;min-height:calc(100vh - 74px)}.panel{background:#fff;padding:22px;border-right:1px solid #f2e2e8}.right{border-left:1px solid #f2e2e8;border-right:0}
 h3{font-size:15px;margin:4px 0 12px}.section{margin-bottom:22px}.label{font-size:12px;color:#8d7c85;margin:10px 0 6px}
 input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:11px 12px;background:#fff;outline:none}input:focus{border-color:#ed6c9a}
-.row{display:flex;gap:7px}.row>*{flex:1}.hint{font-size:11px;color:#9a8991;line-height:1.5}
+.row{display:flex;gap:7px}.row>*{flex:1}.hint{font-size:11px;color:#9a8991;line-height:1.5}.name-font-note{font-size:10px;color:#d982ac;text-align:center;margin:6px 0 2px;letter-spacing:.1px}
 .fonts{display:grid;grid-template-columns:1fr 1fr;gap:7px}.fontbtn{background:#fff;border:1px solid #eadde4;border-radius:9px;padding:9px 4px;cursor:pointer}.fontbtn.active{border-color:#ed5f93;background:#fff0f6}
 .range{width:100%;accent-color:#e95d92}.colors{display:flex;gap:9px;margin-top:8px}.color{width:25px;height:25px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #ddd;cursor:pointer}.color.active{box-shadow:0 0 0 2px #ed5f93}
 .editor-wrap{display:flex;flex-direction:column;align-items:center;padding:25px 18px;background:#fffafc}.toolbar{width:min(640px,100%);display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.tools{display:flex;gap:7px}.tool{border:1px solid #eadde4;background:#fff;border-radius:9px;padding:9px 12px;cursor:pointer}
@@ -44,7 +44,8 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 
 <div class="section">
 <h3>✏️ 2. เพิ่มข้อความ</h3>
-<div class="row"><input id="textInput" type="text" placeholder="เช่น Bunnisa"><button class="addbtn" id="addText">+</button></div>
+<div class="row"><input id="textInput" type="text" placeholder="เช่น Tiwaphakwan"><button class="addbtn" id="addText">+</button></div>
+<div class="hint name-font-note">୨୧ ˚₊‧ ♡ ภาษาไทย ใช้ Sarabun Thin ♡ ‧₊˚ ୨୧</div>
 <div class="label">เลือกฟอนต์</div>
 <div class="fonts"><button class="fontbtn active" data-font="Great Vibes" style="font-family:'Great Vibes'">Great Vibes</button><button class="fontbtn" data-font="Pinyon Script" style="font-family:'Pinyon Script'">Pinyon Script</button><button class="fontbtn" data-font="Imperial Script" style="font-family:'Imperial Script'">Imperial Script</button><button class="fontbtn" data-font="Sarabun" style="font-family:'Sarabun';font-weight:100">Sarabun Thin</button></div>
 <div class="label">ขนาด <span id="sizeVal">34</span></div><input class="range" id="size" type="range" min="16" max="120" value="34"><div class="hint" id="sizeHint">เลือกตัวอักษรหรือของตกแต่งบนเคส แล้วเลื่อนแถบนี้เพื่อปรับขนาด</div>
@@ -283,7 +284,7 @@ document.getElementById('save').onclick=async()=>{
   const blob=await exportCasePNG();
   if(!blob)return;
   downloadBlob(blob,safeFileName());
-  showNotice('บันทึกรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n\n♡ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨');
+  showNotice('บันทึกรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n\n♡ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
 };
 
 document.getElementById('send').onclick=async()=>{
@@ -293,7 +294,7 @@ document.getElementById('send').onclick=async()=>{
   downloadBlob(blob,safeFileName());
   if(navigator.clipboard)try{await navigator.clipboard.writeText(summary)}catch(e){}
   window.open('https://www.instagram.com/n.tiwaphakwan/', '_blank');
-  showNotice('บันทึกรูปดีไซน์ให้แล้วค่ะ 💗\nคัดลอกข้อความออเดอร์แบบน่ารักแล้ว\n\nกำลังเปิด Instagram ของร้าน @n.tiwaphakwan ให้ค่ะ\nจากนั้นแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°');
+  showNotice('บันทึกรูปดีไซน์ให้แล้วค่ะ 💗\nคัดลอกข้อความออเดอร์แบบน่ารักแล้ว\n\nกำลังเปิด Instagram ของร้าน @n.tiwaphakwan ให้ค่ะ\nจากนั้นแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
 };
 list();
 </script>
