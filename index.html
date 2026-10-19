@@ -21,7 +21,7 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 .caseimg{position:absolute;inset:0;width:100%;height:100%;object-fit:fill;z-index:1;pointer-events:none}.objects{position:absolute;inset:0;z-index:3;touch-action:none}
 .obj{position:absolute;user-select:none;-webkit-user-select:none;cursor:move;touch-action:none;-webkit-touch-callout:none;transform-origin:center;border:1px dashed transparent;padding:10px;min-width:18px;min-height:18px}.obj.selected{border-color:#ed5b92}.obj.text{font-size:34px;white-space:nowrap;font-family:"Great Vibes",cursive;font-weight:400;text-shadow:0 1px 0 #fff}.obj.text.sarabun-thin{font-family:"Sarabun",sans-serif!important;font-weight:100!important;text-shadow:none}.obj.image-decor{padding:8px;width:106px;height:106px;display:flex;align-items:center;justify-content:center}.obj.image-decor img{display:block;max-width:100%;max-height:100%;width:100%;height:100%;object-fit:contain;pointer-events:none}.upload-note{font-size:11px;color:#9a8991;line-height:1.5;margin-top:7px}.decor{font-size:44px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.12))}
 .side-actions{position:absolute;right:-52px;top:165px;display:flex;flex-direction:column;gap:8px;z-index:5}.side-actions button{width:43px;height:43px;border:0;background:#fff;border-radius:11px;box-shadow:0 3px 12px #0001;cursor:pointer;font-size:17px}
-.addbtn{border:0;background:#ed5b92;color:#fff;border-radius:10px;width:42px;font-size:22px;cursor:pointer}.decor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.decor-item{height:72px;border:1px solid #eadde4;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:35px;cursor:pointer}.decor-item:hover{border-color:#ed5b92;background:#fff5f9}.decor-item{position:relative;flex-direction:column;gap:2px}.decor-icon{font-size:35px;line-height:1}.price-tag{position:absolute;right:6px;bottom:5px;font-size:10px;color:#9a8991;background:#fff0f6;border-radius:8px;padding:2px 5px}.order-details input{margin-bottom:2px}.price-tabs{margin-top:10px}.price-tabs .tab{font-size:13px}
+.addbtn{border:0;background:#ed5b92;color:#fff;border-radius:10px;width:42px;font-size:22px;cursor:pointer}.decor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.decor-item{height:72px;border:1px solid #eadde4;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:35px;cursor:pointer}.decor-item:hover{border-color:#ed5b92;background:#fff5f9}.decor-item{position:relative;flex-direction:column;gap:2px;padding:6px}.decor-icon{font-size:35px;line-height:1}.decor-thumb{width:100%;height:48px;object-fit:contain;display:block}.obj.image-decor{width:76px;height:76px;padding:2px;display:flex;align-items:center;justify-content:center;cursor:move;touch-action:none}.obj.image-decor img{width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}.obj.image-decor.selected{outline:1px dashed #ed5b92}.price-tag{position:absolute;right:6px;bottom:5px;font-size:10px;color:#9a8991;background:#fff0f6;border-radius:8px;padding:2px 5px}.order-details input{margin-bottom:2px}.price-tabs{margin-top:10px}.price-tabs .tab{font-size:13px}
 .decor-tabs{display:flex;gap:6px;overflow:auto;padding-bottom:4px}.tab{white-space:nowrap;border:1px solid #eadde4;background:#fff;border-radius:18px;padding:7px 12px;font-size:12px;cursor:pointer}.tab.active{background:#ed5b92;color:white;border-color:#ed5b92}
 .selected-list{margin-top:16px}.selected-item{display:flex;align-items:center;gap:8px;border:1px solid #eee1e6;border-radius:10px;padding:8px;margin-bottom:7px;background:#fff;font-size:12px}.selected-item span:first-child{font-size:22px}.selected-item .del{margin-left:auto;border:0;background:none;color:#a58e99;cursor:pointer}
 .bottom{grid-column:1/-1;background:#fff;border-top:1px solid #f1e0e7;padding:18px 28px;display:flex;gap:18px;align-items:center}.customer{flex:1}.summary{width:330px;background:#fff7fa;border:1px solid #f3dce7;border-radius:12px;padding:10px 12px;font-size:12px}.primary,.secondary{border-radius:12px;padding:14px 20px;font-weight:700;cursor:pointer}.primary{background:#ed5b92;color:#fff;border:0}.secondary{background:#fff;color:#ed5b92;border:1px solid #ed5b92}
@@ -76,12 +76,42 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 
 <script>
 const objects=document.getElementById('objects'),caseEl=document.getElementById('case');let selected=null,history=[],redoStack=[],counter=0,currentFont='Great Vibes',currentWeight='400';
-const items=[{icon:'💎',price:5,category:'เพชร'},{icon:'🎀',price:5,category:'โบว์'},{icon:'💗',price:5,category:'หัวใจ'},{icon:'⭐',price:10,category:'ดาว'},{icon:'🌸',price:10,category:'ดอกไม้'},{icon:'🦋',price:10,category:'ผีเสื้อ'},{icon:'👑',price:15,category:'มงกุฎ'},{icon:'🍒',price:15,category:'ผลไม้'},{icon:'🌙',price:15,category:'พระจันทร์'},{icon:'🤍',price:25,category:'หัวใจขาว'},{icon:'🩷',price:25,category:'หัวใจชมพู'},{icon:'✨',price:25,category:'ประกาย'}]; let activePrice='all';
+const items=[
+{file:'dot.5bath.png',price:5,category:'จุดเดี่ยว'},
+{file:'sparkle.5bath.png',price:5,category:'ประกายเดี่ยว'},
+{file:'bow.5bath.png',price:5,category:'โบว์'},
+{file:'bowkitty.5bath.png',price:5,category:'โบว์คิตตี้'},
+{file:'heart.5bath.png',price:5,category:'หัวใจ'},
+{file:'moon.5bath.png',price:5,category:'พระจันทร์'},
+{file:'star.5bath.png',price:5,category:'ดาว'},
+{file:'wing01.5bath.png',price:5,category:'ปีก 1'},
+{file:'wing02.5bath.png',price:5,category:'ปีก 2'},
+{file:'2hearts.10bath.png',price:10,category:'หัวใจคู่'},
+{file:'2star.10bath.png',price:10,category:'ดาวคู่'},
+{file:'bow01.10bath.png',price:10,category:'โบว์ 1'},
+{file:'bow02.10bath.png',price:10,category:'โบว์ 2'},
+{file:'butterfly.10bath.png',price:10,category:'ผีเสื้อ'},
+{file:'cherry.10bath.png',price:10,category:'เชอร์รี่'},
+{file:'clover.10bath.png',price:10,category:'โคลเวอร์'},
+{file:'cross.10bath.png',price:10,category:'กางเขน'},
+{file:'star.10bath.png',price:10,category:'ดาวประดับ'},
+{file:'heartwing.15bath.png',price:15,category:'ปีกหัวใจ'},
+{file:'kitty.15bath.png',price:15,category:'คิตตี้'},
+{file:'line.15bath.png',price:15,category:'ลายเส้น 1'},
+{file:'note01.15bath.png',price:15,category:'โน้ตดนตรี 1'},
+{file:'note02.15bath.png',price:15,category:'โน้ตดนตรี 2'},
+{file:'note03.15bath.png',price:15,category:'โน้ตดนตรี 3'},
+{file:'rabbit.15bath.png',price:15,category:'กระต่าย'},
+{file:'butterfly.25bath.png',price:25,category:'ผีเสื้อประดับ'},
+{file:'cherry.25bath.png',price:25,category:'เชอร์รี่ประดับ'},
+{file:'flower.25bath.png',price:25,category:'ดอกไม้ประดับ'},
+{file:'line.25bath.png',price:25,category:'ลายเส้น 2'}
+]; let activePrice='all';
 function snap(){history.push(objects.innerHTML);if(history.length>25)history.shift();redoStack=[]}
 function bind(el){el.addEventListener('pointerdown',drag);el.addEventListener('click',e=>{e.stopPropagation();select(el)})}
 function select(el){document.querySelectorAll('.obj').forEach(x=>x.classList.remove('selected'));selected=el;if(el)el.classList.add('selected')}
-function addObj(content,type='decor',meta=null){snap();const el=document.createElement('div');el.className='obj '+type;el.dataset.id=++counter;el.textContent=content;if(meta){el.dataset.price=meta.price||'';el.dataset.category=meta.category||'';}el.style.left=(45+Math.random()*110)+'px';el.style.top=(140+Math.random()*250)+'px';if(type==='decor')el.style.fontSize=(32+Math.random()*18)+'px';if(type==='text'){el.style.fontFamily=`\"${currentFont}\"`;el.style.fontWeight=currentWeight;if(currentFont==='Sarabun'){el.classList.add('sarabun-thin');el.style.fontWeight='100';}}bind(el);objects.appendChild(el);select(el);list()}
-function addImageObj(dataUrl,name){snap();const el=document.createElement('div');el.className='obj image-decor';el.dataset.id=++counter;el.dataset.label=name||'รูปตกแต่ง';el.style.left='105px';el.style.top='210px';const img=document.createElement('img');img.src=dataUrl;img.alt=el.dataset.label;el.appendChild(img);bind(el);objects.appendChild(el);select(el);list()}
+function addObj(content,type='decor',meta=null){if(type==='decor'&&meta&&meta.file){addImageObj(meta.file,meta.category,meta.price);return;}snap();const el=document.createElement('div');el.className='obj '+type;el.dataset.id=++counter;el.textContent=content;if(meta){el.dataset.price=meta.price||'';el.dataset.category=meta.category||'';}el.style.left=(45+Math.random()*110)+'px';el.style.top=(140+Math.random()*250)+'px';if(type==='decor')el.style.fontSize=(32+Math.random()*18)+'px';if(type==='text'){el.style.fontFamily=`"${currentFont}"`;el.style.fontWeight=currentWeight;if(currentFont==='Sarabun'){el.classList.add('sarabun-thin');el.style.fontWeight='100';}}bind(el);objects.appendChild(el);select(el);list()}
+function addImageObj(filename,name,price){snap();const el=document.createElement('div');el.className='obj image-decor decor';el.dataset.id=++counter;el.dataset.label=name||'รูปตกแต่ง';el.dataset.price=price||'';el.dataset.category=name||'';el.dataset.scale='1';el.dataset.rot='0';el.style.left=(70+Math.random()*90)+'px';el.style.top=(130+Math.random()*220)+'px';const img=document.createElement('img');img.src=filename;img.alt=el.dataset.label;img.onerror=()=>{img.onerror=null;img.style.display='none';el.title='ไม่พบไฟล์รูป: '+filename;};el.appendChild(img);bind(el);objects.appendChild(el);select(el);list()}
 function drag(e){
   if(e.pointerType==='mouse' && e.button!==0)return;
   e.preventDefault();
@@ -140,10 +170,11 @@ function list(){const box=document.getElementById('selectedList'),arr=[...object
 function fill(){
   const box=document.getElementById('rightDecor'); if(!box)return; box.innerHTML='';
   const q=(document.getElementById('search')?.value||'').trim().toLowerCase();
-  items.filter(item=>(activePrice==='all'||String(item.price)===String(activePrice)) && (!q || (item.icon+' '+item.category+' '+item.price).toLowerCase().includes(q))).forEach(item=>{
+  items.filter(item=>(activePrice==='all'||String(item.price)===String(activePrice)) && (!q || (item.file+' '+item.category+' '+item.price).toLowerCase().includes(q))).forEach(item=>{
     const b=document.createElement('button'); b.className='decor-item'; b.dataset.price=item.price; b.title=item.category+' • '+item.price+' บาท';
-    b.innerHTML='<span class="decor-icon">'+item.icon+'</span><span class="price-tag">'+item.price+'฿</span>';
-    b.onclick=()=>addObj(item.icon,'decor',item); box.appendChild(b);
+    const img=document.createElement('img'); img.className='decor-thumb'; img.alt=item.category; img.src=item.file; img.onerror=()=>{const candidates=item.alts||[]; const next=candidates.find(f=>f!==img.src.split('/').pop() && f!==img.dataset.tried); if(next){img.dataset.tried=next;img.src=next;}else{img.style.display='none'; const label=document.createElement('span');label.className='decor-icon';label.textContent='🖼️';b.insertBefore(label,b.firstChild);}};
+    b.appendChild(img); const tag=document.createElement('span');tag.className='price-tag';tag.textContent=item.price+'฿';b.appendChild(tag);
+    b.onclick=()=>addObj('', 'decor', item); box.appendChild(b);
   });
 }
 fill();
