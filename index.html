@@ -333,4 +333,62 @@ list();
     <button class="notice-close" id="closeNotice">♡ ปิดหน้าต่าง ♡</button>
   </div>
 </div>
+<script>
+// Safety net: capture save/send clicks even if an earlier setup statement fails.
+(function(){
+  if(window.__tiwaphakwanButtonSafetyInstalled) return;
+  window.__tiwaphakwanButtonSafetyInstalled=true;
+  function notice(msg){
+    const modal=document.getElementById('noticeModal');
+    const box=document.getElementById('noticeMessage');
+    if(box) box.textContent=msg;
+    if(modal) modal.classList.add('open');
+    else alert(msg);
+  }
+  function filename(){
+    const input=document.getElementById('phoneModel');
+    const model=(input && input.value || 'custom').trim().replace(/[^a-zA-Z0-9ก-๙_-]+/g,'-');
+    return 'TIWAPHAKWAN-'+(model||'custom')+'-design.png';
+  }
+  function download(blob){
+    if(!blob || !blob.size) throw new Error('ไฟล์ภาพว่างเปล่า');
+    const url=URL.createObjectURL(blob), a=document.createElement('a');
+    a.href=url; a.download=filename(); a.style.display='none';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),5000);
+  }
+  async function handle(button, send){
+    if(button.dataset.safetyBusy==='1') return;
+    button.dataset.safetyBusy='1'; button.disabled=true;
+    const original=button.textContent; button.textContent=send?'กำลังเตรียมแบบ…':'กำลังบันทึกแบบ…';
+    notice('กำลังเตรียมภาพแบบของคุณค่ะ 🎀 กรุณารอสักครู่นะคะ');
+    let tab=null;
+    try{
+      if(send) { try { tab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank'); } catch(_) {} }
+      if(typeof window.exportCasePNG!=='function') throw new Error('ระบบเริ่มต้นไม่สมบูรณ์ กรุณารีเฟรชหน้าเว็บ (Ctrl + F5) แล้วลองอีกครั้ง');
+      const blob=await window.exportCasePNG();
+      if(!blob) throw new Error('สร้างภาพไม่สำเร็จ อาจโหลดระบบสร้างภาพไม่ครบ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ');
+      download(blob);
+      if(send){
+        let copied=false;
+        try{if(navigator.clipboard && window.isSecureContext && typeof window.makeSummary==='function'){await navigator.clipboard.writeText(window.makeSummary());copied=true;}}catch(_){}
+        notice('เตรียมรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n'+(copied?'คัดลอกข้อความออเดอร์แล้วค่ะ':'อย่าลืมส่งรายละเอียดออเดอร์ให้ร้านนะคะ')+'\n\nกำลังเปิด Instagram ของร้าน @n.tiwaphakwan ค่ะ\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+      } else {
+        notice('บันทึกรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n\n♡ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+      }
+    }catch(err){
+      console.error('TIWAPHAKWAN save/send error:',err);
+      if(send && tab && !tab.closed){try{tab.close()}catch(_){}}
+      notice('ขออภัยค่ะ ยังทำรายการไม่สำเร็จ 💗\n\n'+(err && err.message ? err.message : 'กรุณารีเฟรชหน้าเว็บแล้วลองใหม่')+'\n\nหากยังไม่ได้ ให้ตรวจสอบอินเทอร์เน็ตแล้วกด Ctrl + F5 นะคะ\n♡ IG : n.tiwaphakwan ♡');
+    }finally{button.dataset.safetyBusy='0';button.disabled=false;button.textContent=original;}
+  }
+  document.addEventListener('click',function(e){
+    const button=e.target && e.target.closest ? e.target.closest('#save, #send') : null;
+    if(!button) return;
+    e.preventDefault(); e.stopPropagation();
+    if(e.stopImmediatePropagation) e.stopImmediatePropagation();
+    handle(button,button.id==='send');
+  },true);
+})();
+</script>
 </body></html>
