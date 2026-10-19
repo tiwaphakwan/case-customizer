@@ -44,7 +44,7 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 
 <div class="section">
 <h3>✏️ 2. เพิ่มข้อความ</h3>
-<div class="row"><input id="textInput" type="text" placeholder="เช่น Tiwaphakwan"><button class="addbtn" id="addText">+</button></div>
+<div class="row"><input id="textInput" type="text" placeholder="เช่น Tiwa"><button class="addbtn" id="addText">+</button></div>
 <div class="hint name-font-note">୨୧ ˚₊‧ ♡ ภาษาไทย ใช้ Sarabun Thin ♡ ‧₊˚ ୨୧</div>
 <div class="label">เลือกฟอนต์</div>
 <div class="fonts"><button class="fontbtn active" data-font="Great Vibes" style="font-family:'Great Vibes'">Great Vibes</button><button class="fontbtn" data-font="Pinyon Script" style="font-family:'Pinyon Script'">Pinyon Script</button><button class="fontbtn" data-font="Imperial Script" style="font-family:'Imperial Script'">Imperial Script</button><button class="fontbtn" data-font="Sarabun" style="font-family:'Sarabun';font-weight:100">Sarabun Thin</button></div>
@@ -52,7 +52,7 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 <div class="label">สีข้อความ</div><div class="colors"><button class="color active" title="สีดำ" aria-label="สีดำ" style="background:#222222" data-color="#222222"></button><button class="color" title="สีชมพู" aria-label="สีชมพู" style="background:#f28bb4" data-color="#f28bb4"></button><button class="color" title="สีฟ้า" aria-label="สีฟ้า" style="background:#75c8ef" data-color="#75c8ef"></button></div>
 </div>
 
-<div class="section order-details"><h3>🧾 3. รายละเอียดออเดอร์</h3><div class="label">ชื่อลูกค้า</div><input id="customer" type="text" placeholder="เช่น Bunni"><div class="label">Instagram / ช่องทางติดต่อ</div><input id="contact" type="text" placeholder="เช่น @username / LINE "><div class="label">เลขออเดอร์ <span style="font-weight:400">(ใส่หรือไม่ก็ได้)</span></div><input id="orderNo" type="text" placeholder="เช่น #001"><div class="hint" style="margin-top:8px">♡ ข้อมูลนี้จะถูกใส่ในข้อความออเดอร์ที่คัดลอกให้ร้านค่ะ</div></div>
+<div class="section order-details"><h3>🧾 3. รายละเอียดออเดอร์</h3><div class="label">ชื่อลูกค้า</div><input id="customer" type="text" placeholder="เช่น Tiwa"><div class="label">Instagram / ช่องทางติดต่อ</div><input id="contact" type="text" placeholder="เช่น @username / LINE / เบอร์โทร"><div class="label">เลขออเดอร์ <span style="font-weight:400">(ใส่หรือไม่ก็ได้)</span></div><input id="orderNo" type="text" placeholder="เช่น #001"><div class="hint" style="margin-top:8px">♡ ข้อมูลนี้จะถูกใส่ในข้อความออเดอร์ที่คัดลอกให้ร้านค่ะ</div></div>
 <div class="note">୨୧ ตัวอย่างนี้ใช้ “เคสใส” ของร้านเป็นพื้นฐานค่ะ รุ่นโทรศัพท์สามารถพิมพ์เองได้ และตอนบันทึกแบบจะคงตำแหน่งข้อความและของตกแต่งตามที่วางในหน้าออกแบบไว้ค่ะ ୨୧<br>˚₊‧♡‧₊˚ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨</div>
 </aside>
 
@@ -221,7 +221,7 @@ function makeSummary(){
 }
 
 async function exportCasePNG(){
-  if(!window.html2canvas){alert('กำลังโหลดระบบบันทึกรูป กรุณาลองอีกครั้งค่ะ');return null}
+  if(!window.html2canvas){throw new Error('โหลดระบบสร้างภาพไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ')}
   await document.fonts.ready;
 
   // Export with a slightly larger case on the same decorative background.
@@ -280,21 +280,45 @@ function safeFileName(){const model=(document.getElementById('phoneModel').value
 function showNotice(message){document.getElementById('noticeMessage').textContent=message;document.getElementById('noticeModal').classList.add('open')}
 document.getElementById('closeNotice').onclick=()=>document.getElementById('noticeModal').classList.remove('open');
 document.getElementById('noticeModal').addEventListener('click',e=>{if(e.target.id==='noticeModal')e.currentTarget.classList.remove('open')});
+function friendlyError(action, err){
+  console.error(action + ' failed:', err);
+  showNotice('ขออภัยค่ะ ระบบ' + action + 'ยังทำงานไม่สำเร็จ 💗\n\nลองกดอีกครั้งนะคะ หากยังไม่ได้ ให้รีเฟรชหน้าเว็บแล้วลองใหม่ค่ะ\n\n♡ สามารถส่งข้อความสั่งซื้อให้ร้านได้ที่ IG : n.tiwaphakwan ♡');
+}
+
 document.getElementById('save').onclick=async()=>{
-  const blob=await exportCasePNG();
-  if(!blob)return;
-  downloadBlob(blob,safeFileName());
-  showNotice('บันทึกรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n\n♡ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  const btn=document.getElementById('save');
+  if(btn.dataset.busy==='1') return;
+  btn.dataset.busy='1'; btn.disabled=true;
+  const original=btn.textContent; btn.textContent='กำลังบันทึกแบบ…';
+  showNotice('กำลังเตรียมภาพแบบของคุณค่ะ 🎀 กรุณารอสักครู่นะคะ');
+  try{
+    const blob=await exportCasePNG();
+    if(!blob){throw new Error('ระบบไม่ได้สร้างไฟล์ภาพ กรุณารีเฟรชหน้าเว็บแล้วลองใหม่ค่ะ')}
+    downloadBlob(blob,safeFileName());
+    showNotice('บันทึกรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n\n♡ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  }catch(err){friendlyError('บันทึกแบบ',err);}
+  finally{btn.dataset.busy='0';btn.disabled=false;btn.textContent=original;}
 };
 
 document.getElementById('send').onclick=async()=>{
-  const blob=await exportCasePNG();
-  if(!blob)return;
-  const summary=makeSummary();
-  downloadBlob(blob,safeFileName());
-  if(navigator.clipboard)try{await navigator.clipboard.writeText(summary)}catch(e){}
-  window.open('https://www.instagram.com/n.tiwaphakwan/', '_blank');
-  showNotice('บันทึกรูปดีไซน์ให้แล้วค่ะ 💗\nคัดลอกข้อความออเดอร์แบบน่ารักแล้ว\n\nกำลังเปิด Instagram ของร้าน @n.tiwaphakwan ให้ค่ะ\nจากนั้นแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  const btn=document.getElementById('send');
+  if(btn.dataset.busy==='1') return;
+  btn.dataset.busy='1'; btn.disabled=true;
+  const original=btn.textContent; btn.textContent='กำลังเตรียมแบบ…';
+  showNotice('กำลังเตรียมภาพและข้อความออเดอร์ค่ะ 🎀 กรุณารอสักครู่นะคะ');
+  let instagramTab=null;
+  try{
+    const summary=makeSummary();
+    // Open synchronously from the click to reduce popup-blocker issues.
+    instagramTab=window.open('https://www.instagram.com/n.tiwaphakwan/', '_blank');
+    const blob=await exportCasePNG();
+    if(!blob){if(instagramTab)instagramTab.close();throw new Error('ระบบไม่ได้สร้างไฟล์ภาพ กรุณารีเฟรชหน้าเว็บแล้วลองใหม่ค่ะ')}
+    downloadBlob(blob,safeFileName());
+    let copied=false;
+    try{if(navigator.clipboard && window.isSecureContext){await navigator.clipboard.writeText(summary);copied=true;}}catch(e){console.warn('Clipboard copy unavailable:',e);}
+    showNotice('เตรียมรูปแบบเคสแล้วค่ะ 💗\nไฟล์ PNG จะถูกดาวน์โหลดลงเครื่อง\n'+(copied?'คัดลอกข้อความออเดอร์แล้วค่ะ':'หากคัดลอกข้อความออเดอร์ไม่สำเร็จ สามารถคัดลอกข้อความจากกล่องออเดอร์ในหน้าเว็บได้ค่ะ')+'\n\n'+(instagramTab?'เปิด Instagram ของร้านในแท็บใหม่แล้วค่ะ':'หาก Instagram ไม่เปิดอัตโนมัติ ให้เข้า IG : n.tiwaphakwan')+'\nแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  }catch(err){friendlyError('ส่งแบบให้ร้าน',err);}
+  finally{btn.dataset.busy='0';btn.disabled=false;btn.textContent=original;}
 };
 list();
 </script>
