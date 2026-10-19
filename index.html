@@ -48,7 +48,7 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 <div class="label">เลือกฟอนต์</div>
 <div class="fonts"><button class="fontbtn active" data-font="Great Vibes" style="font-family:'Great Vibes'">Great Vibes</button><button class="fontbtn" data-font="Pinyon Script" style="font-family:'Pinyon Script'">Pinyon Script</button><button class="fontbtn" data-font="Imperial Script" style="font-family:'Imperial Script'">Imperial Script</button><button class="fontbtn" data-font="Sarabun" style="font-family:'Sarabun';font-weight:100">Sarabun Thin</button></div>
 <div class="label">ขนาด <span id="sizeVal">34</span></div><input class="range" id="size" type="range" min="16" max="120" value="34">
-<div class="label">สีข้อความ</div><div class="colors"><button class="color active" style="background:#222" data-color="#222"></button><button class="color" style="background:#ed5b92" data-color="#ed5b92"></button><button class="color" style="background:#9d7bd8" data-color="#9d7bd8"></button><button class="color" style="background:#c99b5a" data-color="#c99b5a"></button><button class="color" style="background:#fff" data-color="#fff"></button></div>
+<div class="label">สีข้อความ</div><div class="colors"><button class="color active" title="สีดำ" aria-label="สีดำ" style="background:#000000" data-color="#000000"></button><button class="color" title="สีชมพู" aria-label="สีชมพู" style="background:#f28bb4" data-color="#f28bb4"></button><button class="color" title="สีฟ้า" aria-label="สีฟ้า" style="background:#75c8ef" data-color="#75c8ef"></button></div>
 </div>
 
 <div class="section order-details"><h3>🧾 3. รายละเอียดออเดอร์</h3><div class="label">ชื่อลูกค้า</div><input id="customer" type="text" placeholder="เช่น Bunnisa"><div class="label">Instagram / ช่องทางติดต่อ</div><input id="contact" type="text" placeholder="เช่น @username / LINE / เบอร์โทร"><div class="label">เลขออเดอร์ <span style="font-weight:400">(ใส่หรือไม่ก็ได้)</span></div><input id="orderNo" type="text" placeholder="เช่น #001"><div class="hint" style="margin-top:8px">♡ ข้อมูลนี้จะถูกใส่ในข้อความออเดอร์ที่คัดลอกให้ร้านค่ะ</div></div>
@@ -64,12 +64,12 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 
 <aside class="panel right">
 <div class="section"><h3>ของตกแต่งทั้งหมด</h3><input type="text" placeholder="🔍 ค้นหาไอเท็ม..." id="search"><div class="decor-tabs price-tabs"><button class="tab active" data-price="all">ทั้งหมด</button><button class="tab" data-price="5">5 บาท</button><button class="tab" data-price="10">10 บาท</button><button class="tab" data-price="15">15 บาท</button><button class="tab" data-price="25">25 บาท</button></div><div class="decor-grid" id="rightDecor"></div></div>
-<div class="section"><h3>รายการที่เลือก</h3><div id="selectedList" class="selected-list"><div class="empty">ยังไม่มีของตกแต่งที่เลือก</div></div></div>
+<div class="section"><h3>รายการที่เลือก</h3><div id="selectedList" class="selected-list"><div class="empty">ยังไม่มีของตกแต่งที่เลือก</div></div><div class="label">ปรับขนาดของตกแต่งที่เลือก <span id="decorSizeVal">100%</span></div><input class="range" id="decorSize" type="range" min="25" max="300" step="5" value="100"><div class="hint">แตะเลือกรูปบนเคสก่อน แล้วเลื่อนแถบเพื่อเพิ่มหรือลดขนาดค่ะ</div></div>
 </aside>
 
 <div class="bottom">
 <div class="customer"><div style="font-weight:700;font-size:13px;color:#8d7c85">♡ ออกแบบเสร็จแล้วใช่ไหมคะ?</div></div>
-<div class="summary"><b>สรุปแบบ</b><br><span id="summary">กรุณาพิมพ์รุ่นโทรศัพท์</span></div>
+<div class="summary"><b>สรุปแบบ</b><br><span id="summary">กรุณาพิมพ์รุ่นโทรศัพท์</span><div style="border-top:1px solid #f0dce5;margin-top:8px;padding-top:8px">💗 รวมค่าของตกแต่ง: <b id="priceTotal">0 บาท</b></div></div>
 <button class="secondary" id="save">↓ บันทึกแบบ</button><button class="primary" id="send">↗ ส่งแบบให้ร้าน</button>
 </div>
 </div>
@@ -109,7 +109,8 @@ const items=[
 ]; let activePrice='all';
 function snap(){history.push(objects.innerHTML);if(history.length>25)history.shift();redoStack=[]}
 function bind(el){el.addEventListener('pointerdown',drag);el.addEventListener('click',e=>{e.stopPropagation();select(el)})}
-function select(el){document.querySelectorAll('.obj').forEach(x=>x.classList.remove('selected'));selected=el;if(el)el.classList.add('selected')}
+function select(el){document.querySelectorAll('.obj').forEach(x=>x.classList.remove('selected'));selected=el;if(el)el.classList.add('selected');const slider=document.getElementById('decorSize');const val=document.getElementById('decorSizeVal');if(slider&&val){const scale=el?+(el.dataset.scale||1):1;slider.value=Math.max(25,Math.min(300,Math.round(scale*100)));val.textContent=Math.round(scale*100)+'%';slider.disabled=!el||!el.classList.contains('image-decor')}}
+function updatePrice(){const total=[...objects.children].filter(el=>el.classList.contains('decor')).reduce((sum,el)=>sum+(Number(el.dataset.price)||0),0);const target=document.getElementById('priceTotal');if(target)target.textContent=total+' บาท';return total}
 function addObj(content,type='decor',meta=null){if(type==='decor'&&meta&&meta.file){addImageObj(meta.file,meta.category,meta.price);return;}snap();const el=document.createElement('div');el.className='obj '+type;el.dataset.id=++counter;el.textContent=content;if(meta){el.dataset.price=meta.price||'';el.dataset.category=meta.category||'';}el.style.left=(45+Math.random()*110)+'px';el.style.top=(140+Math.random()*250)+'px';if(type==='decor')el.style.fontSize=(32+Math.random()*18)+'px';if(type==='text'){el.style.fontFamily=`"${currentFont}"`;el.style.fontWeight=currentWeight;if(currentFont==='Sarabun'){el.classList.add('sarabun-thin');el.style.fontWeight='100';}}bind(el);objects.appendChild(el);select(el);list()}
 function addImageObj(filename,name,price){snap();const el=document.createElement('div');el.className='obj image-decor decor';el.dataset.id=++counter;el.dataset.label=name||'รูปตกแต่ง';el.dataset.price=price||'';el.dataset.category=name||'';el.dataset.scale='1';el.dataset.rot='0';el.style.left=(70+Math.random()*90)+'px';el.style.top=(130+Math.random()*220)+'px';const img=document.createElement('img');img.src=filename;img.alt=el.dataset.label;img.onerror=()=>{img.onerror=null;img.style.display='none';el.title='ไม่พบไฟล์รูป: '+filename;};el.appendChild(img);bind(el);objects.appendChild(el);select(el);list()}
 function drag(e){
@@ -166,7 +167,7 @@ function drag(e){
   el.addEventListener('pointerup',up);
   el.addEventListener('pointercancel',up);
 }
-function list(){const box=document.getElementById('selectedList'),arr=[...objects.children];if(!arr.length){box.innerHTML='<div class="empty">ยังไม่มีของตกแต่งที่เลือก</div>';return}box.innerHTML='';arr.forEach(el=>{const d=document.createElement('div');d.className='selected-item';const preview=el.classList.contains('image-decor')?'<img src="'+el.querySelector('img').src+'" style="width:28px;height:28px;object-fit:contain;border-radius:6px">':'<span>'+el.textContent+'</span>';const label=el.classList.contains('text')?'ข้อความ':(el.classList.contains('image-decor')?'รูปของตกแต่ง':'ของตกแต่ง');d.innerHTML=preview+'<span>'+label+'</span><button class="del">×</button>';d.querySelector('.del').onclick=(ev)=>{ev.stopPropagation();snap();el.remove();if(selected===el)selected=null;list()};d.onclick=()=>select(el);box.appendChild(d)})}
+function list(){const box=document.getElementById('selectedList'),arr=[...objects.children];if(!arr.length){box.innerHTML='<div class="empty">ยังไม่มีของตกแต่งที่เลือก</div>';return}box.innerHTML='';arr.forEach(el=>{const d=document.createElement('div');d.className='selected-item';const preview=el.classList.contains('image-decor')?'<img src="'+el.querySelector('img').src+'" style="width:28px;height:28px;object-fit:contain;border-radius:6px">':'<span>'+el.textContent+'</span>';const label=el.classList.contains('text')?'ข้อความ':(el.classList.contains('image-decor')?'รูปของตกแต่ง':'ของตกแต่ง');d.innerHTML=preview+'<span>'+label+'</span><button class="del">×</button>';d.querySelector('.del').onclick=(ev)=>{ev.stopPropagation();snap();el.remove();if(selected===el)selected=null;list()};d.onclick=()=>select(el);box.appendChild(d)});updatePrice();select(selected&&objects.contains(selected)?selected:null)}
 function fill(){
   const box=document.getElementById('rightDecor'); if(!box)return; box.innerHTML='';
   const q=(document.getElementById('search')?.value||'').trim().toLowerCase();
@@ -182,17 +183,19 @@ document.querySelectorAll('.price-tabs .tab').forEach(tab=>tab.onclick=()=>{docu
 document.getElementById('addText').onclick=()=>{const v=document.getElementById('textInput').value.trim();if(v){addObj(v,'text');document.getElementById('textInput').value=''}};
 document.querySelectorAll('.fontbtn').forEach(b=>b.onclick=()=>{document.querySelectorAll('.fontbtn').forEach(x=>x.classList.remove('active'));b.classList.add('active');currentFont=b.dataset.font;currentWeight=b.dataset.font==='Sarabun'?'100':'400';if(selected?.classList.contains('text')){snap();selected.style.fontFamily=`\"${currentFont}\"`;selected.style.fontWeight=currentWeight;if(currentFont==='Sarabun'){selected.classList.add('sarabun-thin');selected.style.fontWeight='100'}else{selected.classList.remove('sarabun-thin')}}});
 document.getElementById('size').oninput=e=>{document.getElementById('sizeVal').textContent=e.target.value;if(selected?.classList.contains('text'))selected.style.fontSize=e.target.value+'px'};
+document.getElementById('decorSize').oninput=e=>{const pct=Number(e.target.value);document.getElementById('decorSizeVal').textContent=pct+'%';if(selected?.classList.contains('image-decor')){const scale=pct/100;selected.dataset.scale=String(scale);selected.style.transform=`rotate(${selected.dataset.rot||0}deg) scale(${scale})`}};document.getElementById('decorSize').onchange=()=>{if(selected?.classList.contains('image-decor'))snap()};
 document.querySelectorAll('.color').forEach(b=>b.onclick=()=>{document.querySelectorAll('.color').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(selected?.classList.contains('text'))selected.style.color=b.dataset.color});
 document.getElementById('del').onclick=()=>{if(selected){snap();selected.remove();selected=null;list()}};
-document.getElementById('rotate').onclick=()=>{if(selected){snap();let r=+(selected.dataset.rot||0)+15;selected.dataset.rot=r;selected.style.transform=`rotate(${r}deg)`}};
-document.getElementById('zoomOut').onclick=()=>{if(selected){snap();let s=Math.max(.25,+(selected.dataset.scale||1)-.15);selected.dataset.scale=s;selected.style.transform=`rotate(${selected.dataset.rot||0}deg) scale(${s})`}};
-document.getElementById('zoom').onclick=()=>{if(selected){snap();let s=Math.min(4,+(selected.dataset.scale||1)+.15);selected.dataset.scale=s;selected.style.transform=`rotate(${selected.dataset.rot||0}deg) scale(${s})`}};
+document.getElementById('rotate').onclick=()=>{if(selected){snap();let r=+(selected.dataset.rot||0)+15;selected.dataset.rot=r;selected.style.transform=`rotate(${r}deg) scale(${selected.dataset.scale||1})`}};
+document.getElementById('zoomOut').onclick=()=>{if(selected){snap();let s=Math.max(.25,+(selected.dataset.scale||1)-.15);selected.dataset.scale=s;selected.style.transform=`rotate(${selected.dataset.rot||0}deg) scale(${s})`;const sl=document.getElementById('decorSize');if(selected.classList.contains('image-decor')){sl.value=Math.round(s*100);document.getElementById('decorSizeVal').textContent=Math.round(s*100)+'%'}}};
+document.getElementById('zoom').onclick=()=>{if(selected){snap();let s=Math.min(4,+(selected.dataset.scale||1)+.15);selected.dataset.scale=s;selected.style.transform=`rotate(${selected.dataset.rot||0}deg) scale(${s})`;const sl=document.getElementById('decorSize');if(selected.classList.contains('image-decor')){sl.value=Math.min(300,Math.round(s*100));document.getElementById('decorSizeVal').textContent=Math.round(s*100)+'%'}}};
 document.getElementById('reset').onclick=()=>{snap();objects.innerHTML='';selected=null;list()};
 document.getElementById('undo').onclick=()=>{if(history.length){redoStack.push(objects.innerHTML);objects.innerHTML=history.pop();objects.querySelectorAll('.obj').forEach(bind);list()}};
 document.getElementById('redo').onclick=()=>{if(redoStack.length){history.push(objects.innerHTML);objects.innerHTML=redoStack.pop();objects.querySelectorAll('.obj').forEach(bind);list()}};
 document.getElementById('phoneModel').oninput=e=>{document.getElementById('summary').textContent=(e.target.value||'กรุณาพิมพ์รุ่นโทรศัพท์')+' • ข้อความ + ของตกแต่ง'};
 caseEl.onclick=e=>{if(e.target===caseEl)select(null)};
 document.getElementById('search').oninput=()=>fill();
+updatePrice();
 
 function makeSummary(){
   const model=document.getElementById('phoneModel').value||'-';
@@ -204,6 +207,8 @@ function makeSummary(){
   const lines=['୨୧ ── TIWAPHAKWAN ORDER ── ୨୧','',`♡ รุ่นโทรศัพท์ : ${model}`,`♡ ชื่อลูกค้า : ${customer}`,`♡ Instagram / ติดต่อ : ${contact}`,`♡ เลขออเดอร์ : ${orderNo}`];
   if(texts.length){lines.push('', '✦ ข้อความบนเคส', ...texts.map(t=>`   ˚₊‧ ${t} ‧₊˚`));}
   if(decorCount){lines.push('', `✦ ของตกแต่ง : ${decorCount} ชิ้น`);}
+  const decorTotal=[...objects.children].filter(el=>el.classList.contains('decor')).reduce((sum,el)=>sum+(Number(el.dataset.price)||0),0);
+  lines.push(`♡ รวมค่าของตกแต่ง : ${decorTotal} บาท`);
   if(!texts.length && !decorCount){lines.push('', '♡ เคสใส — แบบเรียบ');}
   lines.push('', '──────────────', '♡ พร้อมส่งแบบให้ร้านแล้ว ♡');
   return lines.join('\n');
