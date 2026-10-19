@@ -52,7 +52,7 @@ input[type=text]{width:100%;border:1px solid #e8dbe1;border-radius:11px;padding:
 <div class="label">สีข้อความ</div><div class="colors"><button class="color active" title="สีดำ" aria-label="สีดำ" style="background:#222222" data-color="#222222"></button><button class="color" title="สีชมพู" aria-label="สีชมพู" style="background:#f28bb4" data-color="#f28bb4"></button><button class="color" title="สีฟ้า" aria-label="สีฟ้า" style="background:#75c8ef" data-color="#75c8ef"></button></div>
 </div>
 
-<div class="section order-details"><h3>🧾 3. รายละเอียดออเดอร์</h3><div class="label">ชื่อลูกค้า</div><input id="customer" type="text" placeholder="เช่น Bunni"><div class="label">Instagram / ช่องทางติดต่อ</div><input id="contact" type="text" placeholder="เช่น @username / LINE "><div class="label">เลขออเดอร์ <span style="font-weight:400">(ใส่หรือไม่ก็ได้)</span></div><input id="orderNo" type="text" placeholder="เช่น #001"><div class="hint" style="margin-top:8px">♡ ข้อมูลนี้จะถูกใส่ในข้อความออเดอร์ที่คัดลอกให้ร้านค่ะ</div></div>
+<div class="section order-details"><h3>🧾 3. รายละเอียดออเดอร์</h3><div class="label">ชื่อลูกค้า</div><input id="customer" type="text" placeholder="เช่น Bunnisa"><div class="label">Instagram / ช่องทางติดต่อ</div><input id="contact" type="text" placeholder="เช่น @username / LINE / เบอร์โทร"><div class="label">เลขออเดอร์ <span style="font-weight:400">(ใส่หรือไม่ก็ได้)</span></div><input id="orderNo" type="text" placeholder="เช่น #001"><div class="hint" style="margin-top:8px">♡ ข้อมูลนี้จะถูกใส่ในข้อความออเดอร์ที่คัดลอกให้ร้านค่ะ</div></div>
 <div class="note">୨୧ ตัวอย่างนี้ใช้ “เคสใส” ของร้านเป็นพื้นฐานค่ะ รุ่นโทรศัพท์สามารถพิมพ์เองได้ และตอนบันทึกแบบจะคงตำแหน่งข้อความและของตกแต่งตามที่วางในหน้าออกแบบไว้ค่ะ ୨୧<br>˚₊‧♡‧₊˚ ขอบคุณที่ออกแบบกับ TIWAPHAKWAN นะคะ 🎀✨</div>
 </aside>
 
@@ -288,13 +288,24 @@ document.getElementById('save').onclick=async()=>{
 };
 
 document.getElementById('send').onclick=async()=>{
-  const blob=await exportCasePNG();
-  if(!blob)return;
-  const summary=makeSummary();
-  downloadBlob(blob,safeFileName());
-  if(navigator.clipboard)try{await navigator.clipboard.writeText(summary)}catch(e){}
-  window.open('https://www.instagram.com/n.tiwaphakwan/', '_blank');
-  showNotice('บันทึกรูปดีไซน์ให้แล้วค่ะ 💗\nคัดลอกข้อความออเดอร์แบบน่ารักแล้ว\n\nกำลังเปิด Instagram ของร้าน @n.tiwaphakwan ให้ค่ะ\nจากนั้นแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  // Open Instagram directly inside the click event so the browser does not block it
+  // while the PNG is being rendered asynchronously.
+  const igWindow=window.open('https://www.instagram.com/n.tiwaphakwan/', '_blank');
+  try{
+    const blob=await exportCasePNG();
+    if(!blob){
+      showNotice('เปิด Instagram ของร้านแล้วค่ะ 💗 แต่ยังสร้างรูป PNG ไม่สำเร็จ ลองกด “บันทึกแบบ” แยกอีกครั้งนะคะ');
+      return;
+    }
+    const summary=makeSummary();
+    downloadBlob(blob,safeFileName());
+    if(navigator.clipboard){try{await navigator.clipboard.writeText(summary)}catch(e){console.warn('คัดลอกข้อความออเดอร์ไม่สำเร็จ',e)}}
+    showNotice('บันทึกรูปดีไซน์ให้แล้วค่ะ 💗\nคัดลอกข้อความออเดอร์แบบน่ารักแล้ว\n\nเปิด Instagram ของร้าน @n.tiwaphakwan แล้วค่ะ\nจากนั้นแนบรูป PNG ที่ดาวน์โหลดแล้วส่งใน DM ได้เลยค่ะ\n\n♡ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+  }catch(err){
+    console.error('ส่งแบบให้ร้านไม่สำเร็จ:',err);
+    showNotice('เปิด Instagram ของร้านแล้วค่ะ 💗 แต่เกิดข้อผิดพลาดตอนสร้างรูป PNG\n\nกรุณาลองกด “บันทึกแบบ” แยกก่อนนะคะ หากยังไม่ได้ ให้ส่งภาพหน้าจอข้อความผิดพลาดใน Console มาให้ร้านช่วยตรวจค่ะ');
+    if(igWindow && !igWindow.closed){try{igWindow.focus()}catch(_){}}
+  }
 };
 list();
 </script>
