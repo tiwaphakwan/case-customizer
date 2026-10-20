@@ -236,6 +236,10 @@ async function exportCasePNG(){
   // each object's original pixel position, rotation and image aspect ratio.
   clone.querySelectorAll('.caseimg').forEach(img=>Object.assign(img.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'fill'}));
   clone.querySelectorAll('.image-decor').forEach(el=>{el.style.boxSizing='border-box';el.style.display='flex';el.style.alignItems='center';el.style.justifyContent='center';el.style.flexShrink='0'});
+  // Freeze computed object layout from the live preview so cloned export cannot reflow.
+  const liveObjects=[...caseEl.querySelectorAll('.objects > .obj')];
+  const clonedObjects=[...clone.querySelectorAll('.objects > .obj')];
+  liveObjects.forEach((live,i)=>{const target=clonedObjects[i];if(!target)return;const cs=getComputedStyle(live);for(const prop of ['position','left','top','width','height','paddingTop','paddingRight','paddingBottom','paddingLeft','boxSizing','fontSize','fontFamily','fontWeight','fontStyle','lineHeight','letterSpacing','color','whiteSpace','textShadow','transform','transformOrigin','display','alignItems','justifyContent'])target.style[prop]=cs[prop];target.style.margin='0';});
   // Set explicit pixel dimensions for every decoration image using its original
   // intrinsic ratio. html2canvas can mishandle auto sizing in flex items, which
   // caused transparent PNG decorations to look squeezed in the exported image.
@@ -350,23 +354,22 @@ list();
  const modal=()=>document.getElementById('noticeModal');
  function notice(msg){const box=document.getElementById('noticeMessage');if(box)box.textContent=msg;if(modal())modal().classList.add('open');else alert(msg)}
  function copyText(text){
-   return new Promise(resolve=>{
-     let settled=false;const done=v=>{if(!settled){settled=true;resolve(v)}};
-     if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(text).then(()=>done(true)).catch(fallback)}else fallback();
-     function fallback(){try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');Object.assign(ta.style,{position:'fixed',opacity:'0.01',left:'0',top:'0',fontSize:'16px',zIndex:'999999'});document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);done(document.execCommand('copy'));ta.remove()}catch(_){done(false)}}
-   });
+   // Synchronous copy first, before opening tabs or awaiting export.
+   let copied=false;try{const ta=document.createElement('textarea');ta.value=text;ta.setAttribute('readonly','');Object.assign(ta.style,{position:'fixed',opacity:'0.01',left:'0',top:'0',fontSize:'16px',zIndex:'999999'});document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,ta.value.length);copied=document.execCommand('copy');ta.remove();}catch(_){copied=false}
+   if(copied)return Promise.resolve(true);
+   if(navigator.clipboard&&window.isSecureContext)return navigator.clipboard.writeText(text).then(()=>true).catch(()=>false);
+   return Promise.resolve(false);
  }
  function filename(){const el=document.getElementById('phoneModel');const name=(el&&el.value||'custom').trim().replace(/[^a-zA-Z0-9ก-๙_-]+/g,'-');return 'TIWAPHAKWAN-'+(name||'custom')+'-design.png'}
  async function handle(btn,send){
    if(btn.dataset.safeBusy==='1')return;btn.dataset.safeBusy='1';btn.disabled=true;const old=btn.textContent;btn.textContent=send?'กำลังเตรียมแบบ…':'กำลังบันทึกแบบ…';
    let igTab=null,imageTab=null,url=null;
    const mobileImageSave= /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-   // Open destinations directly from the tap before awaiting work. On mobile,
-   // a PNG preview tab is a reliable fallback because download= is often ignored.
+   // Copy first while the original tap still has clipboard permission.
+   let copyPromise=Promise.resolve(false);try{const summary=typeof window.makeSummary==='function'?window.makeSummary():'';if(summary)copyPromise=copyText(summary)}catch(e){console.warn('Could not prepare order summary',e)}
+   // Then open destinations directly from the tap before awaiting image work.
    if(send){try{igTab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank')}catch(_){}}
    else if(mobileImageSave){try{imageTab=window.open('about:blank','_blank')}catch(_){}}
-   // Start copying immediately while the user activation is still fresh.
-   let copyPromise=Promise.resolve(false);try{const summary=typeof window.makeSummary==='function'?window.makeSummary():'';if(summary)copyPromise=copyText(summary)}catch(e){console.warn('Could not prepare order summary',e)}
    try{
      notice('กำลังเตรียมภาพแบบของคุณค่ะ 🎀 กรุณารอสักครู่นะคะ');
      if(typeof window.exportCasePNG!=='function')throw new Error('ระบบสร้างภาพยังไม่พร้อม กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง');
