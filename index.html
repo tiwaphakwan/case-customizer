@@ -223,6 +223,13 @@ function makeSummary(){
 async function exportCasePNG(){
   if(!window.html2canvas) throw new Error('โหลดระบบสร้างภาพไม่สำเร็จ กรุณาตรวจสอบอินเทอร์เน็ตแล้วรีเฟรชหน้าเว็บ');
   await document.fonts.ready;
+  // Explicitly wait for the fonts used by live text objects so the export clone
+  // has the same glyph metrics and rotation center as the editor preview.
+  const liveTextForFonts=[...caseEl.querySelectorAll('.objects > .obj.text')];
+  await Promise.all(liveTextForFonts.map(el=>{
+    const cs=getComputedStyle(el);
+    return document.fonts.load(`${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`, el.textContent || 'Tiwaphakwan').catch(()=>[]);
+  }));
   const W=736, H=1309, CASE_SCALE=1.53;
   // Capture the case at its original, untransformed editor dimensions first.
   // This avoids responsive/mobile CSS and html2canvas transforms shifting objects.
@@ -239,7 +246,18 @@ async function exportCasePNG(){
   // Freeze computed object layout from the live preview so cloned export cannot reflow.
   const liveObjects=[...caseEl.querySelectorAll('.objects > .obj')];
   const clonedObjects=[...clone.querySelectorAll('.objects > .obj')];
-  liveObjects.forEach((live,i)=>{const target=clonedObjects[i];if(!target)return;const cs=getComputedStyle(live);for(const prop of ['position','left','top','width','height','paddingTop','paddingRight','paddingBottom','paddingLeft','boxSizing','fontSize','fontFamily','fontWeight','fontStyle','lineHeight','letterSpacing','color','whiteSpace','textShadow','transform','transformOrigin','display','alignItems','justifyContent'])target.style[prop]=cs[prop];target.style.margin='0';});
+  liveObjects.forEach((live,i)=>{
+    const target=clonedObjects[i];if(!target)return;
+    const cs=getComputedStyle(live);
+    for(const prop of ['position','left','top','paddingTop','paddingRight','paddingBottom','paddingLeft','boxSizing','fontSize','fontFamily','fontWeight','fontStyle','lineHeight','letterSpacing','color','whiteSpace','textShadow','transform','transformOrigin','display','alignItems','justifyContent'])target.style[prop]=cs[prop];
+    // Freeze the untransformed layout box from the live preview. This is especially
+    // important for rotated script text: a font-metric difference changes its center
+    // and makes it overlap decorations or drift away from the edge in the PNG.
+    target.style.width=Math.max(0,live.offsetWidth)+'px';
+    target.style.height=Math.max(0,live.offsetHeight)+'px';
+    target.style.minWidth='0';target.style.minHeight='0';target.style.maxWidth='none';target.style.maxHeight='none';
+    target.style.margin='0';
+  });
   // Set explicit pixel dimensions for every decoration image using its original
   // intrinsic ratio. html2canvas can mishandle auto sizing in flex items, which
   // caused transparent PNG decorations to look squeezed in the exported image.
@@ -368,7 +386,13 @@ list();
    // Copy first while the original tap still has clipboard permission.
    let copyPromise=Promise.resolve(false);try{const summary=typeof window.makeSummary==='function'?window.makeSummary():'';if(summary)copyPromise=copyText(summary)}catch(e){console.warn('Could not prepare order summary',e)}
    // Then open destinations directly from the tap before awaiting image work.
-   if(send){try{igTab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank')}catch(_){}}
+   if(send){
+     const isMobileInstagram=/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+     // Always open the web profile as a reliable fallback directly from the tap.
+     try{igTab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank')}catch(_){}
+     // On mobile, separately request the native Instagram app; if unavailable, the web tab remains open.
+     if(isMobileInstagram){try{window.open('instagram://user?username=n.tiwaphakwan','_blank')}catch(_){}}
+   }
    else if(mobileImageSave){try{imageTab=window.open('about:blank','_blank')}catch(_){}}
    try{
      notice('กำลังเตรียมภาพแบบของคุณค่ะ 🎀 กรุณารอสักครู่นะคะ');
