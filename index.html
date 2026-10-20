@@ -236,7 +236,31 @@ async function exportCasePNG(){
   // each object's original pixel position, rotation and image aspect ratio.
   clone.querySelectorAll('.caseimg').forEach(img=>Object.assign(img.style,{position:'absolute',inset:'0',width:'100%',height:'100%',objectFit:'fill'}));
   clone.querySelectorAll('.image-decor').forEach(el=>{el.style.boxSizing='border-box';el.style.display='flex';el.style.alignItems='center';el.style.justifyContent='center';el.style.flexShrink='0'});
-  clone.querySelectorAll('.image-decor img').forEach(img=>{img.style.display='block';img.style.objectFit='contain';img.style.maxWidth='100%';img.style.maxHeight='100%';img.style.width=img.style.width||'100%';img.style.height=img.style.height||'100%';});
+  // Set explicit pixel dimensions for every decoration image using its original
+  // intrinsic ratio. html2canvas can mishandle auto sizing in flex items, which
+  // caused transparent PNG decorations to look squeezed in the exported image.
+  const sourceImgs=[...caseEl.querySelectorAll('.image-decor img')];
+  await Promise.all(sourceImgs.map(img=>{
+    if(img.complete && img.naturalWidth>0) return Promise.resolve();
+    return new Promise(resolve=>{img.addEventListener('load',resolve,{once:true});img.addEventListener('error',resolve,{once:true});});
+  }));
+  const cloneImgs=[...clone.querySelectorAll('.image-decor img')];
+  cloneImgs.forEach((img,i)=>{
+    const source=sourceImgs[i];
+    img.style.display='block';img.style.objectFit='contain';img.style.flex='none';
+    img.style.maxWidth='none';img.style.maxHeight='none';
+    if(source && source.naturalWidth>0 && source.naturalHeight>0){
+      const wrap=img.parentElement;
+      const css=getComputedStyle(caseEl.querySelectorAll('.image-decor')[i]);
+      const maxW=Math.max(1,(parseFloat(css.width)||76)-(parseFloat(css.paddingLeft)||0)-(parseFloat(css.paddingRight)||0));
+      const maxH=Math.max(1,(parseFloat(css.height)||76)-(parseFloat(css.paddingTop)||0)-(parseFloat(css.paddingBottom)||0));
+      const ratio=Math.min(maxW/source.naturalWidth,maxH/source.naturalHeight);
+      img.style.width=(source.naturalWidth*ratio)+'px';
+      img.style.height=(source.naturalHeight*ratio)+'px';
+    } else {
+      img.style.width='100%';img.style.height='100%';img.style.objectFit='contain';
+    }
+  });
   frame.appendChild(clone); document.body.appendChild(frame);
   try{
     const caseCanvas=await window.html2canvas(clone,{backgroundColor:null,scale:2,useCORS:true,allowTaint:false,logging:false,scrollX:0,scrollY:0,width:310,height:570,windowWidth:Math.max(window.innerWidth,736),windowHeight:Math.max(window.innerHeight,1309)});
@@ -335,9 +359,12 @@ list();
  function filename(){const el=document.getElementById('phoneModel');const name=(el&&el.value||'custom').trim().replace(/[^a-zA-Z0-9ก-๙_-]+/g,'-');return 'TIWAPHAKWAN-'+(name||'custom')+'-design.png'}
  async function handle(btn,send){
    if(btn.dataset.safeBusy==='1')return;btn.dataset.safeBusy='1';btn.disabled=true;const old=btn.textContent;btn.textContent=send?'กำลังเตรียมแบบ…':'กำลังบันทึกแบบ…';
-   let igTab=null,previewTab=null,url=null;
-   // Open Instagram synchronously from the user's click, before any await.
-   if(send){try{igTab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank','noopener')}catch(_){}}
+   let igTab=null,imageTab=null,url=null;
+   const mobileImageSave= /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+   // Open destinations directly from the tap before awaiting work. On mobile,
+   // a PNG preview tab is a reliable fallback because download= is often ignored.
+   if(send){try{igTab=window.open('https://www.instagram.com/n.tiwaphakwan/','_blank')}catch(_){}}
+   else if(mobileImageSave){try{imageTab=window.open('about:blank','_blank')}catch(_){}}
    // Start copying immediately while the user activation is still fresh.
    let copyPromise=Promise.resolve(false);try{const summary=typeof window.makeSummary==='function'?window.makeSummary():'';if(summary)copyPromise=copyText(summary)}catch(e){console.warn('Could not prepare order summary',e)}
    try{
@@ -345,12 +372,14 @@ list();
      if(typeof window.exportCasePNG!=='function')throw new Error('ระบบสร้างภาพยังไม่พร้อม กรุณารีเฟรชหน้าเว็บแล้วลองอีกครั้ง');
      const blob=await window.exportCasePNG();if(!blob||!blob.size)throw new Error('สร้างไฟล์ภาพไม่สำเร็จ กรุณาลองใหม่');
      url=URL.createObjectURL(blob);
-     const a=document.createElement('a');a.href=url;a.download=filename();a.style.display='none';document.body.appendChild(a);a.click();a.remove();
-     // Do not open a second blank tab; it can cause browsers to block Instagram.
+     let imageShown=false;
+     if(!send && mobileImageSave && imageTab){imageTab.location.href=url;imageShown=true;}
+     else {const a=document.createElement('a');a.href=url;a.download=filename();a.style.display='none';document.body.appendChild(a);a.click();a.remove();}
+     // On mobile, the image preview lets the user save via long-press if the browser ignores download=.
      const copied=await copyPromise;
-     notice((send?'เตรียมแบบสำหรับส่งให้ร้านแล้วค่ะ 💗':'บันทึกรูปแบบเคสแล้วค่ะ 💗')+'\nไฟล์ PNG พร้อมบันทึกลงเครื่องค่ะ\n'+(copied?'คัดลอกข้อมูลออเดอร์แล้วค่ะ สามารถนำไปวางได้เลย':'คัดลอกอัตโนมัติไม่สำเร็จ เบราว์เซอร์อาจจำกัดสิทธิ์ กรุณาใช้ข้อความสรุปออเดอร์ในหน้าเว็บ')+'\n\n'+(send?(igTab?'เปิด Instagram ของร้านในแท็บใหม่แล้วค่ะ':'เบราว์เซอร์บล็อกการเปิด Instagram อัตโนมัติ กรุณาเปิด IG : n.tiwaphakwan'):'ไม่ได้เปิด Instagram ตามที่เลือกไว้ค่ะ')+'\nแนบรูป PNG ที่บันทึกแล้วส่งใน DM ได้เลยค่ะ\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
+     notice((send?'เตรียมแบบสำหรับส่งให้ร้านแล้วค่ะ 💗':'บันทึกรูปแบบเคสแล้วค่ะ 💗')+'\n'+(imageShown?'เปิดภาพ PNG ในแท็บใหม่แล้วค่ะ ให้กดค้างที่ภาพแล้วเลือกดาวน์โหลด/บันทึกรูป':'ส่งคำสั่งดาวน์โหลดไฟล์ PNG แล้วค่ะ หากโทรศัพท์ไม่ดาวน์โหลดอัตโนมัติ ให้ลองเปิดภาพจากแท็บใหม่หรือเมนูดาวน์โหลด')+'\n'+(copied?'คัดลอกข้อมูลออเดอร์แล้วค่ะ สามารถนำไปวางได้เลย':'คัดลอกอัตโนมัติไม่สำเร็จ เบราว์เซอร์อาจจำกัดสิทธิ์ กรุณาใช้ข้อความสรุปออเดอร์ในหน้าเว็บ')+'\n\n'+(send?(igTab?'เปิด Instagram ของร้านในแท็บใหม่แล้วค่ะ':'เบราว์เซอร์บล็อกการเปิด Instagram อัตโนมัติ กรุณาเปิด IG : n.tiwaphakwan'):'ไม่ได้เปิด Instagram ตามที่เลือกไว้ค่ะ')+'\nแนบรูป PNG ที่บันทึกแล้วส่งใน DM ได้เลยค่ะ\n\n୨୧ ───── ♡ ───── ୨୧\n♡ สอบถามหรือสั่งซื้อ ♡\nสามารถสั่งซื้อหรือสอบถามได้ที่\n୨୧ IG : n.tiwaphakwan ୨୧\n꒰ა ♡ ໒꒱ ขอบคุณที่สนับสนุนร้านเล็ก ๆ ของเรานะคะ ✧˖°\n♡ ─── ⋆｡˚୨୧˚｡⋆ ─── ♡');
    }catch(err){console.error('TIWAPHAKWAN action failed',err);notice('ขออภัยค่ะ ยังทำรายการไม่สำเร็จ 💗\n\n'+(err&&err.message||'กรุณารีเฟรชหน้าเว็บแล้วลองใหม่ค่ะ'))}
-   finally{btn.dataset.safeBusy='0';btn.disabled=false;btn.textContent=old;if(url)setTimeout(()=>URL.revokeObjectURL(url),60000)}
+   finally{btn.dataset.safeBusy='0';btn.disabled=false;btn.textContent=old;if(url)setTimeout(()=>URL.revokeObjectURL(url),120000)}
  }
  document.addEventListener('click',e=>{const close=e.target.closest&&e.target.closest('#closeNotice');if(close){e.preventDefault();e.stopPropagation();modal()?.classList.remove('open');return}const b=e.target.closest&&e.target.closest('#save, #send');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();handle(b,b.id==='send')},true);
  document.addEventListener('keydown',e=>{if(e.key==='Escape')modal()?.classList.remove('open')});
